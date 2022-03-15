@@ -102,7 +102,7 @@ export default {
       editedItem: {
         title: "",
         amt: "",
-        date: ""
+        date: new Date().toISOString().slice(0, 10)
       },
       defaultItem: {
         title: "",
@@ -114,13 +114,15 @@ export default {
   },
   mounted() {
     this.getMoney();
-    
+    // toLocaleDateString()
+     console.log(new Date().toLocaleDateString())
     //  console.log(Timestamp.fromMillis(Date.now()))
   },
   methods: {
     getTime(t) {
       // return t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()
-      return t.getDate()
+      return (t.getMonth()+1)+"/"+t.getDate()
+      // return t.getDate()
     },
     editItem(item) {
       this.isEdit = true;
