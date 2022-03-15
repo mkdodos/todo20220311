@@ -23,7 +23,15 @@
             <v-form v-show="isEdit">
               <v-text-field label="項目" v-model="editedItem.title" hide-details="auto"></v-text-field>
               <v-text-field label="金額" v-model="editedItem.amt" type="number"></v-text-field>
+              <v-text-field label="日期" v-model="editedItem.date" type="date"></v-text-field>
               <v-row class="mb-6">
+                <v-col class="text-left">
+                  <v-icon
+                    v-if="editedIndex>-1"
+                    small
+                    @click="deleteItem(editedItem.id,editedIndex)"
+                  >mdi-delete</v-icon>
+                </v-col>
                 <v-col class="text-right">
                   <v-btn color="green" class="white--text" @click="save">儲存</v-btn>
                 </v-col>
@@ -33,9 +41,10 @@
             <v-simple-table>
               <thead>
                 <tr>
-                  <!-- <th>日期</th> -->
-                  
                   <th></th>
+                  <th>日期</th>
+
+                 
                   <th>項目</th>
                   <th>金額</th>
                   <th></th>
@@ -43,16 +52,21 @@
               </thead>
               <tbody>
                 <tr v-for="(obj,index) in rows" :key="index">
-                  <!-- <td>{{obj.date.toDate().toLocaleDateString() }}</td> -->
-
-<td @click="destory(obj.id,index)">
+                 
+                 <td>
                     <v-icon small @click="deleteItem(obj.id,index)">mdi-delete</v-icon>
                   </td>
                  
+                  <!-- <td>{{obj.date}}</td> -->
+                  <!-- <td>{{obj.date.toDate().toLocaleDateString() }}</td> -->
+                  <td>{{getTime(obj.date.toDate()) }}</td>
+                 
+
                   <td>{{obj.title}}</td>
                   <td>{{obj.amt}}</td>
-                  <td><v-icon small @click="editItem(obj)">mdi-pencil</v-icon></td> 
-                  
+                  <td>
+                    <v-icon small @click="editItem(obj)">mdi-pencil</v-icon>
+                  </td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -66,6 +80,7 @@
 <script>
 import db from "../db/Money.vue";
 import {
+  Timestamp,
   collection,
   getDocs,
   addDoc,
@@ -86,18 +101,27 @@ export default {
       editedIndex: -1,
       editedItem: {
         title: "",
-        amt: ""
+        amt: "",
+        date: ""
       },
       defaultItem: {
         title: "",
-        amt: ""
+        amt: "",
+        // date: Timestamp.fromDate(new Date())
+        date: ""
       }
     };
   },
   mounted() {
     this.getMoney();
+    
+    //  console.log(Timestamp.fromMillis(Date.now()))
   },
   methods: {
+    getTime(t) {
+      // return t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()
+      return t.getDate()
+    },
     editItem(item) {
       this.isEdit = true;
       this.editedIndex = this.rows.indexOf(item);
@@ -107,6 +131,8 @@ export default {
     async deleteItem(id, index) {
       await deleteDoc(doc(db, collection_name, id));
       this.rows.splice(index, 1);
+      this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedIndex = -1;
     },
 
     openForm() {
@@ -137,28 +163,41 @@ export default {
           this.editedIndex = -1;
         });
       } else {
+        
+        // console.log(firestore.Timestamp)
+        
+        // return 
         // 新增
+        const t = Timestamp.fromDate(new Date(this.editedItem.date))
+        // const t = Timestamp.fromMillis(Date.now())
+        // const t = Timestamp.fromDate(new Date("December 10, 1815"))
+        // const t = Timestamp.fromDate(Date.parse(this.editedItem.date))
         const docRef = await addDoc(collection(db, collection_name), {
-          date: new Date(),
+         
+          date: t,
+          // date: Timestamp.fromDate(new Date("December 10, 1815")),
+          // date: Timestamp.fromMillis(Date.now()),
           title: this.editedItem.title,
           amt: this.editedItem.amt
         });
         this.editedItem.id = docRef.id;
-        console.log(docRef.id);
+        this.editedItem.date = t ;
+        console.log(t);
+        // console.log(Date.parse(this.editedItem.date));
 
         this.rows.push(this.editedItem);
-        // 若直接將 editedItem 設定值, 會無法顯示該列資料
-        // this.editedItem.title = "";
-        // this.editedItem.amt = 0;
+        console.log(this.editedItem);
+        // // 若直接將 editedItem 設定值, 會無法顯示該列資料
+        // // this.editedItem.title = "";
+        // // this.editedItem.amt = 0;
         // 使用此方法, 複製預設值給 editedItem
         this.editedItem = Object.assign({}, this.defaultItem);
       }
 
-      console.log(this.editedItem);
-      // 更新
+      // console.log(this.editedItem);
+      
 
-      // console.log(this.editedItem)
-      // this.getMoney();
+     
     }
   }
 };
