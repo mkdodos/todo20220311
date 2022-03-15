@@ -2,7 +2,7 @@
   <div>
     <v-container>
       <v-row>
-        <v-col></v-col>
+        <!-- <v-col></v-col> -->
         <v-col>
           <v-simple-table>
             <template v-slot:default>
@@ -25,7 +25,7 @@
             </template>
           </v-simple-table>
         </v-col>
-         <v-col></v-col>
+         <!-- <v-col></v-col> -->
       </v-row>
     </v-container>
 
