@@ -55,8 +55,12 @@
                     <v-icon small @click="deleteItem(obj.id,index)">mdi-delete</v-icon>
                   </td>
 
+                  <td>
+                    <v-badge :color="getColor(obj.date)" :content="getDate(obj.date)"></v-badge>
+                  </td>
+
                   <!-- <td>{{obj.date}}</td> -->
-                  <td>{{obj.date.toDate().toISOString().slice(0, 10) }}</td>
+                  <td>{{obj.date.toDate().toISOString().slice(5, 10) }}</td>
                   <!-- <td>{{obj.date.toDate().toLocaleDateString() }}</td> -->
                   <!-- <td>{{getTime(obj.date.toDate()) }}</td> -->
 
@@ -118,13 +122,26 @@ export default {
     //  console.log(Timestamp.fromMillis(Date.now()))
   },
   methods: {
+    // 依日期顯示不同顏色
+    getColor(date) {
+      let d = date.toDate().getDay();
+      // console.log(date)
+      let color = "blue-grey";
+      if (d == "6") color = "green";
+      else if (d == "0") color = "error";
+      return color;
+    },
+    // 轉換 firebase timestamp 日期格式
+    getDate(date) {
+      return date.toDate().getDate();
+    },
     // 金額加總
     getTotal(arr) {
-      console.log(arr)
+      console.log(arr);
       const total = Object.keys(arr).reduce(function(previous, key) {
-        return previous + arr[key].amt*1;
-      }, 0);      
-      return total
+        return previous + arr[key].amt * 1;
+      }, 0);
+      return total;
     },
     getTime(t) {
       // return t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()
