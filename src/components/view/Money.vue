@@ -58,8 +58,9 @@
                   </td>
                  
                   <!-- <td>{{obj.date}}</td> -->
+                  <td>{{obj.date.toDate().toISOString().slice(0, 10) }}</td>
                   <!-- <td>{{obj.date.toDate().toLocaleDateString() }}</td> -->
-                  <td>{{getTime(obj.date.toDate()) }}</td>
+                  <!-- <td>{{getTime(obj.date.toDate()) }}</td> -->
                  
 
                   <td>{{obj.title}}</td>
@@ -102,6 +103,7 @@ export default {
       editedItem: {
         title: "",
         amt: "",
+        // 2022-03-16 配合日期輸入框可用格式 yyyy-mm-dd
         date: new Date().toISOString().slice(0, 10)
       },
       defaultItem: {
@@ -125,9 +127,14 @@ export default {
       // return t.getDate()
     },
     editItem(item) {
+      // console.log(item.date.toDate().toISOString().slice(0,10))
       this.isEdit = true;
       this.editedIndex = this.rows.indexOf(item);
+      // item.date =  item.date.toDate().toISOString().slice(0, 10)
+      // item.date =  "2022-12-12"
       this.editedItem = Object.assign({}, item);
+      // 轉成日期輸入框可接受格式
+      this.editedItem.date =  this.editedItem.date.toDate().toISOString().slice(0, 10)
     },
 
     async deleteItem(id, index) {
@@ -154,13 +161,17 @@ export default {
       //更新
       if (this.editedIndex > -1) {
         const washingtonRef = doc(db, collection_name, this.editedItem.id);
-
+        this.editedItem.date = Timestamp.fromDate(new Date(this.editedItem.date))
+        // console.log(Timestamp.fromDate(new Date(this.editedItem.date)))
         // Set the "capital" field of the city 'DC'
         await updateDoc(washingtonRef, this.editedItem);
 
+        // Object.assign(target, ...sources)
+        // 將表單的值傳回表格中
         Object.assign(this.rows[this.editedIndex], this.editedItem);
 
         this.$nextTick(() => {
+          // 將表單的值設成預設值
           this.editedItem = Object.assign({}, this.defaultItem);
           this.editedIndex = -1;
         });
@@ -184,15 +195,18 @@ export default {
         });
         this.editedItem.id = docRef.id;
         this.editedItem.date = t ;
-        console.log(t);
+        // this.editedItem.date = t.toDate().toISOString().slice(0, 10) ;
+        // console.log(t);
         // console.log(Date.parse(this.editedItem.date));
 
         this.rows.push(this.editedItem);
-        console.log(this.editedItem);
+        // console.log(this.defaultItem);
         // // 若直接將 editedItem 設定值, 會無法顯示該列資料
         // // this.editedItem.title = "";
         // // this.editedItem.amt = 0;
         // 使用此方法, 複製預設值給 editedItem
+        this.defaultItem.date = t.toDate().toISOString().slice(0, 10) ;
+        // this.defaultItem.date = "2022-02-02" ;
         this.editedItem = Object.assign({}, this.defaultItem);
       }
 
