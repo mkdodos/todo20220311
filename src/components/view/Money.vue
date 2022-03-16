@@ -41,7 +41,7 @@
             <v-simple-table>
               <thead>
                 <tr>
-                  <th></th>
+                  <!-- <th></th> -->
                   <th>日期</th>
 
                   <th>項目</th>
@@ -51,17 +51,17 @@
               </thead>
               <tbody>
                 <tr v-for="(obj,index) in rows" :key="index">
-                  <td>
+                  <!-- <td>
                     <v-icon small @click="deleteItem(obj.id,index)">mdi-delete</v-icon>
-                  </td>
+                  </td> -->
 
                   <td>
                     <v-badge :color="getColor(obj.date)" :content="getDate(obj.date)"></v-badge>
                   </td>
 
                   <!-- <td>{{obj.date}}</td> -->
-                  <td>{{obj.date.toDate().toISOString().slice(5, 10) }}</td>
-                  <!-- <td>{{obj.date.toDate().toLocaleDateString() }}</td> -->
+                  <!-- <td>{{obj.date.toDate().toISOString().slice(5, 10) }}</td> -->
+
                   <!-- <td>{{getTime(obj.date.toDate()) }}</td> -->
 
                   <td>{{obj.title}}</td>
@@ -88,7 +88,8 @@ import {
   addDoc,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  query, orderBy
 } from "firebase/firestore/lite";
 
 const collection_name = "spends";
@@ -175,7 +176,12 @@ export default {
     },
     async getMoney() {
       const citiesCol = collection(db, collection_name);
-      const citySnapshot = await getDocs(citiesCol);
+      // const q = query(collection(db, "cities"), where("capital", "==", true));
+      // const q = query(citiesCol, where("amt", "==", 100));
+      const q = query(citiesCol, orderBy("date","desc"));
+
+      // const citySnapshot = await getDocs(citiesCol);
+      const citySnapshot = await getDocs(q);
       citySnapshot.forEach(doc => {
         let row = doc.data();
         row.id = doc.id;
