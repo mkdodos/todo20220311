@@ -6,7 +6,7 @@
           <v-col md="8">
             <v-toolbar class="mb-8">
               <v-app-bar-nav-icon></v-app-bar-nav-icon>
-              <v-toolbar-title>支出</v-toolbar-title>
+              <v-toolbar-title>支出 {{ getTotal(rows)}}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-btn icon @click="openForm" color="green darken-2">
                 <v-icon>mdi-plus-circle-outline</v-icon>
@@ -44,7 +44,6 @@
                   <th></th>
                   <th>日期</th>
 
-                 
                   <th>項目</th>
                   <th>金額</th>
                   <th></th>
@@ -52,16 +51,14 @@
               </thead>
               <tbody>
                 <tr v-for="(obj,index) in rows" :key="index">
-                 
-                 <td>
+                  <td>
                     <v-icon small @click="deleteItem(obj.id,index)">mdi-delete</v-icon>
                   </td>
-                 
+
                   <!-- <td>{{obj.date}}</td> -->
                   <td>{{obj.date.toDate().toISOString().slice(0, 10) }}</td>
                   <!-- <td>{{obj.date.toDate().toLocaleDateString() }}</td> -->
                   <!-- <td>{{getTime(obj.date.toDate()) }}</td> -->
-                 
 
                   <td>{{obj.title}}</td>
                   <td>{{obj.amt}}</td>
@@ -117,13 +114,21 @@ export default {
   mounted() {
     this.getMoney();
     // toLocaleDateString()
-     console.log(new Date().toLocaleDateString())
+    console.log(new Date().toLocaleDateString());
     //  console.log(Timestamp.fromMillis(Date.now()))
   },
   methods: {
+    // 金額加總
+    getTotal(arr) {
+      console.log(arr)
+      const total = Object.keys(arr).reduce(function(previous, key) {
+        return previous + arr[key].amt*1;
+      }, 0);      
+      return total
+    },
     getTime(t) {
       // return t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()
-      return (t.getMonth()+1)+"/"+t.getDate()
+      return t.getMonth() + 1 + "/" + t.getDate();
       // return t.getDate()
     },
     editItem(item) {
@@ -134,7 +139,10 @@ export default {
       // item.date =  "2022-12-12"
       this.editedItem = Object.assign({}, item);
       // 轉成日期輸入框可接受格式
-      this.editedItem.date =  this.editedItem.date.toDate().toISOString().slice(0, 10)
+      this.editedItem.date = this.editedItem.date
+        .toDate()
+        .toISOString()
+        .slice(0, 10);
     },
 
     async deleteItem(id, index) {
@@ -161,7 +169,9 @@ export default {
       //更新
       if (this.editedIndex > -1) {
         const washingtonRef = doc(db, collection_name, this.editedItem.id);
-        this.editedItem.date = Timestamp.fromDate(new Date(this.editedItem.date))
+        this.editedItem.date = Timestamp.fromDate(
+          new Date(this.editedItem.date)
+        );
         // console.log(Timestamp.fromDate(new Date(this.editedItem.date)))
         // Set the "capital" field of the city 'DC'
         await updateDoc(washingtonRef, this.editedItem);
@@ -172,21 +182,20 @@ export default {
 
         this.$nextTick(() => {
           // 將表單的值設成預設值
+          this.defaultItem.date = "";
           this.editedItem = Object.assign({}, this.defaultItem);
           this.editedIndex = -1;
         });
       } else {
-        
         // console.log(firestore.Timestamp)
-        
-        // return 
+
+        // return
         // 新增
-        const t = Timestamp.fromDate(new Date(this.editedItem.date))
+        const t = Timestamp.fromDate(new Date(this.editedItem.date));
         // const t = Timestamp.fromMillis(Date.now())
         // const t = Timestamp.fromDate(new Date("December 10, 1815"))
         // const t = Timestamp.fromDate(Date.parse(this.editedItem.date))
         const docRef = await addDoc(collection(db, collection_name), {
-         
           date: t,
           // date: Timestamp.fromDate(new Date("December 10, 1815")),
           // date: Timestamp.fromMillis(Date.now()),
@@ -194,7 +203,7 @@ export default {
           amt: this.editedItem.amt
         });
         this.editedItem.id = docRef.id;
-        this.editedItem.date = t ;
+        this.editedItem.date = t;
         // this.editedItem.date = t.toDate().toISOString().slice(0, 10) ;
         // console.log(t);
         // console.log(Date.parse(this.editedItem.date));
@@ -205,15 +214,15 @@ export default {
         // // this.editedItem.title = "";
         // // this.editedItem.amt = 0;
         // 使用此方法, 複製預設值給 editedItem
-        this.defaultItem.date = t.toDate().toISOString().slice(0, 10) ;
+        this.defaultItem.date = t
+          .toDate()
+          .toISOString()
+          .slice(0, 10);
         // this.defaultItem.date = "2022-02-02" ;
         this.editedItem = Object.assign({}, this.defaultItem);
       }
 
       // console.log(this.editedItem);
-      
-
-     
     }
   }
 };
