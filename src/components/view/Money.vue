@@ -214,25 +214,18 @@ export default {
 
         // return
         // 新增
-        const t = Timestamp.fromDate(new Date(this.editedItem.date));
-        // const t = Timestamp.fromMillis(Date.now())
-        // const t = Timestamp.fromDate(new Date("December 10, 1815"))
-        // const t = Timestamp.fromDate(Date.parse(this.editedItem.date))
+        const t = Timestamp.fromDate(new Date(this.editedItem.date));       
         const docRef = await addDoc(collection(db, collection_name), {
-          date: t,
-          // date: Timestamp.fromDate(new Date("December 10, 1815")),
-          // date: Timestamp.fromMillis(Date.now()),
+          date: t,        
           title: this.editedItem.title,
           amt: this.editedItem.amt
         });
         this.editedItem.id = docRef.id;
-        this.editedItem.date = t;
-        // this.editedItem.date = t.toDate().toISOString().slice(0, 10) ;
-        // console.log(t);
-        // console.log(Date.parse(this.editedItem.date));
-
-        this.rows.push(this.editedItem);
-        // console.log(this.defaultItem);
+        this.editedItem.date = t; 
+        // 將項目加入到資料列 
+        this.rows.unshift(this.editedItem);
+        // this.rows.push(this.editedItem);
+        
         // // 若直接將 editedItem 設定值, 會無法顯示該列資料
         // // this.editedItem.title = "";
         // // this.editedItem.amt = 0;
@@ -240,8 +233,7 @@ export default {
         this.defaultItem.date = t
           .toDate()
           .toISOString()
-          .slice(0, 10);
-        // this.defaultItem.date = "2022-02-02" ;
+          .slice(0, 10);       
         this.editedItem = Object.assign({}, this.defaultItem);
       }
 
